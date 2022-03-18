@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ```{r import-libraries}
@@ -31,7 +31,7 @@ df <- import(here("data","birthweight_dataset.sav")) #Import dataset
 df <- clean_names(df) #clean data variables
 ```
 
-```{r glimpse-data}
+```{r glimpse-data, eval=FALSE}
 glimpse(df)  #Glimpse data frame
 ```
 
@@ -49,10 +49,11 @@ df <- df%>%mutate(
 )
 ```
 
-```{r skim-data}
+```{r skim-data, eval=FALSE}
 df_no_id <- df%>%select(-c(id))
 skim(df_no_id)
 ```
+
 
 
 ```{r subset-data-smoking-mothers}
@@ -61,56 +62,153 @@ df_smoker <- df%>%
 ```
 
 
+
 ```{r subset-data-non-smoking-mothers}
 df_non_smoker <- df%>%
         filter(smoker == "No smoker")
 ```
 
 
+***
+
 
 #### 1. What is the mean birthweight of babies of non-smoking mothers?
 
-The mean birth weight of babies of non-smoking mothers is `r round(mean(df_non_smoker$birthweight),2)` kg.
+The mean birth weight of babies of non-smoking mothers is `r round(mean(df_non_smoker$birthweight),2)` kg. 
+
+
+
+***
 
 
 #### 2. What is the mean birthweight of babies of smoking mothers?
 
-The mean birth weight of babies of non-smoking mothers is `r round(mean(df_smoker$birthweight),2)` kg.
+The mean birth weight of babies of non-smoking mothers is  `r round(mean(df_smoker$birthweight),2)` kg.
+
+
+***
 
 
 #### 3. What is the mean head circumference for babies of non-smoking mothers?
 
 The mean head circumference of babies of non-smoking mothers is `r mean(df_non_smoker$headcirc)` cm.
 
-## 4. What is the mean gestational age at birth for babies of smoking mothers?
+
+***
 
 
-The mean gestational age of babies of smoking mothers is `r mean(df_smoker$gestation)` weeks.
+
+#### 4. What is the mean gestational age at birth for babies of smoking mothers?
 
 
-## 5. What is the maximum head circumference for babies of smoking mothers?
+The mean gestational age of babies of smoking mothers is `r round(mean(df_smoker$gestation),2)` weeks.
 
-The maximum head circumference 
+
+
+***
+
+
+#### 5. What is the maximum head circumference for babies of smoking mothers?
+
+The maximum head circumference of babies of smoking mothers is `r max(df_smoker$headcirc)` cm.
+
+
+
+***
+
+#### 6. What is the minimum gestational age at birth for babies of smoking mothers?
+
+The minimum gestational age at birth for babies of smoking mothers is `r min(df_smoker$gestation)` weeks.
+
+
+***
+
+
+
+#### 7. What is the baby birth weight range for babies of smoking mothers?
+
+The birth weight range for babies of smoking mothers are `r range(df_smoker$birthweight)`
+
+
+
+***
+
+
+
+#### 8. Are head circumference data for babies of smoking mothers normally distributed?
+
+The head circumference of babies of smoking mothers does not follow a normal distribution as shown in the image following.
+
 
 ```{r}
-max(df_smoker$headcirc)
+ggplot(df, aes(headcirc)) +
+        geom_histogram(binwidth = 0.5) +
+        labs(x = "Head circumference",y = "Frequency",
+             title = "Head circumference of babies among smoking mothers")
 ```
 
 
-## 6. What is the minimum gestational age at birth for babies of smoking mothers?
 
-## 7. What is the baby birth weight range for babies of smoking mothers?
+***
 
-## 8. Are head circumference data for babies of smoking mothers normally distributed?
 
-## 9. What is significance value for the above Shapiro-Wilk test?
 
-## 10. How are birthweight data of non-smoking mothers skewed?
-
-## 11. Are birthweight data for babies of smoking mothers normally distributed?
+#### 9. What is significance value for the above Shapiro-Wilk test?
 
 
 ```{r}
+a <- shapiro.test(df_smoker$headcirc)
+```
 
+The significance value of the above distribution indicates that head circumference data for babies of non-smoking mothers is not normally distributed. P value is `r round(a$p.value,2)`
+
+
+
+
+***
+
+
+#### 10. How are birthweight data of non-smoking mothers skewed?
+
+```{r}
+c <- shapiro.test(df_non_smoker$birthweight)
+```
+
+
+
+The birth weight data of non-smoking mothers is normally distributed with a shapiro test p-value of `r round(c$p.value,2)`
+
+
+```{r}
+ggplot(df_non_smoker, aes(birthweight)) +
+        geom_histogram(binwidth = 0.5) +
+        labs (x = "Birth weight",
+              y = "Frequency",
+              title = "Frequency distribution of babies of non-smoking mothers")
+```
+
+
+
+
+***
+
+
+#### 11. Are birthweight data for babies of smoking mothers normally distributed?
+
+
+```{r birth-weight-smoker-normal}
+b <- shapiro.test(df_smoker$birthweight)
+```
+
+Birthweight data for babies of smoking mothers is normally distributed as evideneced by a shapiro test with p value `r round(b$p.value,2)`
+
+
+
+```{r}
+ggplot(df_smoker, aes(birthweight)) + 
+        geom_histogram(binwidth = 1) +
+        labs (x = "Birth weight of babies of smoking mothers",
+              y = "Frequency",
+              title = "Frequency distribution of babies of smoking mothers")
 ```
 
