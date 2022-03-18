@@ -9,3 +9,108 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r import-libraries}
+# Import libraries for data analysis
+
+pacman::p_load(
+        tidyverse, #Data management and plots
+        rio, # Data import
+        here, #Project management
+        janitor, #Clean data names
+        skimr #Skim dataset
+)
+```
+
+```{r load-dataset}
+df <- import(here("data","birthweight_dataset.sav")) #Import dataset
+```
+
+
+
+```{r clean-data}
+df <- clean_names(df) #clean data variables
+```
+
+```{r glimpse-data}
+glimpse(df)  #Glimpse data frame
+```
+
+```{r data-transformation}
+df <- df%>%mutate(
+        smoker = factor(smoker)%>%
+                fct_recode("No smoker" = "0",
+                           "Smoker" = "1"),
+        lowbwt = factor(lowbwt)%>%
+                fct_recode("No" = "0",
+                           "Yes" = "1"),
+        mage35 = factor(mage35)%>%
+                fct_recode("No" = "0",
+                           "Yes" = "1")
+)
+```
+
+```{r skim-data}
+df_no_id <- df%>%select(-c(id))
+skim(df_no_id)
+```
+
+
+```{r subset-data-smoking-mothers}
+df_smoker <- df%>%
+        filter (smoker == "Smoker") ## Data frame for smoking mothers
+```
+
+
+```{r subset-data-non-smoking-mothers}
+df_non_smoker <- df%>%
+        filter(smoker == "No smoker")
+```
+
+
+
+#### 1. What is the mean birthweight of babies of non-smoking mothers?
+
+The mean birth weight of babies of non-smoking mothers is `r round(mean(df_non_smoker$birthweight),2)` kg.
+
+
+#### 2. What is the mean birthweight of babies of smoking mothers?
+
+The mean birth weight of babies of non-smoking mothers is `r round(mean(df_smoker$birthweight),2)` kg.
+
+
+#### 3. What is the mean head circumference for babies of non-smoking mothers?
+
+The mean head circumference of babies of non-smoking mothers is `r mean(df_non_smoker$headcirc)` cm.
+
+## 4. What is the mean gestational age at birth for babies of smoking mothers?
+
+
+The mean gestational age of babies of smoking mothers is `r mean(df_smoker$gestation)` weeks.
+
+
+## 5. What is the maximum head circumference for babies of smoking mothers?
+
+The maximum head circumference 
+
+```{r}
+max(df_smoker$headcirc)
+```
+
+
+## 6. What is the minimum gestational age at birth for babies of smoking mothers?
+
+## 7. What is the baby birth weight range for babies of smoking mothers?
+
+## 8. Are head circumference data for babies of smoking mothers normally distributed?
+
+## 9. What is significance value for the above Shapiro-Wilk test?
+
+## 10. How are birthweight data of non-smoking mothers skewed?
+
+## 11. Are birthweight data for babies of smoking mothers normally distributed?
+
+
+```{r}
+
+```
+
