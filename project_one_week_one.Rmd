@@ -1,0 +1,11 @@
+---
+title: "Project one"
+author: "Eric Anku"
+date: "3/18/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
