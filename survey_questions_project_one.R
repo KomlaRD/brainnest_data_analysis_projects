@@ -1,10 +1,10 @@
 library(tidyverse)
 
-class_scores <- data.frame(a = c(8,6,5,12,5,6,8,9,7,6,9,5,14,4,7,6))
+class_scores <- data.frame(scores = c(8,6,5,12,5,6,8,9,7,6,9,5,14,4,7,6))
 
-mean(df12$a)
+mean(class_scores$scores)
 
-median(df12$a)
+median(class_scores$scores)
 
-ggplot(df12, aes(a)) +
+ggplot(class_scores, aes(scores)) +
         geom_histogram(binwidth = 1)
