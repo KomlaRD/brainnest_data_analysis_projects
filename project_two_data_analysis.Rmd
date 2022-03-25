@@ -18,7 +18,9 @@ pacman::p_load(
         rio, # Data import
         here, #Project management
         janitor, #Clean data names
-        skimr #Skim dataset
+        skimr, #Skim dataset
+        gtsummary, #Table summary
+        finalfit # Labeling of variables
 )
 ```
 
@@ -36,17 +38,20 @@ df <- clean_names(df) #clean data variables
 df <- df%>%mutate(
         smoker = factor(smoker)%>%
                 fct_recode("No smoker" = "0",
-                           "Smoker" = "1"),
+                           "Smoker" = "1")%>%
+                ff_label("Smoker"),
         lowbwt = factor(lowbwt)%>%
                 fct_recode("No" = "0",
-                           "Yes" = "1"),
+                           "Yes" = "1")%>%
+                ff_label("Low birth weight"),
         mage35 = factor(mage35)%>%
                 fct_recode("No" = "0",
-                           "Yes" = "1")
+                           "Yes" = "1")%>%
+                ff_label("Maternal age group")
 )
 ```
 
-```{r skim-data, eval=FALSE}
+```{r skim-data}
 df_no_id <- df%>%select(-c(id))
 skim(df_no_id)
 ```
@@ -65,8 +70,13 @@ df_non_smoker <- df%>%
         filter(smoker == "No smoker")
 ```
 
+There are `r nrow(df)` children in this study. 
 
-
+```{r}
+df%>%
+        tbl_summary()
+```
+ 
 
 
 
