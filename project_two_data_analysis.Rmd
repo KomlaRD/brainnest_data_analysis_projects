@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 
@@ -20,7 +20,8 @@ pacman::p_load(
         janitor, #Clean data names
         skimr, #Skim dataset
         gtsummary, #Table summary
-        finalfit # Labeling of variables
+        finalfit, # Labeling of variables
+        GGally #Correlation matrix
 )
 ```
 
@@ -45,13 +46,15 @@ df <- df%>%mutate(
                            "Yes" = "1")%>%
                 ff_label("Low birth weight"),
         mage35 = factor(mage35)%>%
-                fct_recode("No" = "0",
-                           "Yes" = "1")%>%
-                ff_label("Maternal age group")
+                fct_recode("< 35" = "0",
+                           ">= 35" = "1")%>%
+                ff_label("Maternal age group"),
+        headcirc = as.integer(headcirc)%>%
+                ff_label ("Head circumference (cm)")
 )
 ```
 
-```{r skim-data}
+```{r skim-data, eval=FALSE}
 df_no_id <- df%>%select(-c(id))
 skim(df_no_id)
 ```
@@ -70,15 +73,62 @@ df_non_smoker <- df%>%
         filter(smoker == "No smoker")
 ```
 
-There are `r nrow(df)` children in this study. 
 
-```{r}
-df%>%
-        tbl_summary()
+***
+
+
+There are `r nrow(df)` children in this study. The following table describes the various measurements collected in this dataset.
+
+
+
+```{r table-summary}
+df%>%select(-id)%>%
+        tbl_summary(statistic = list(all_continuous() ~
+                            "{mean} ({sd})"))
 ```
  
 
 
+***
+
+
+
+#### Reporting the result of correlation
+
+
+
+
+
+***Relationship between maternal height and baby length***
+
+
+
+
+The correlation between maternal height and baby length is `r round(cor(df$mheight,df$length),2)`
+
+
+
+
+***Relationship between gestation and baby weight***
+
+
+
+
+The correlation between gestation and baby weight is `r round(cor(df$gestation,df$birthweight),2)`
+
+
+
+***Correlation matrix for above relationships***
+
+
+
+
+
+```{r}
+df%>%
+        select(-c(id,smoker,lowbwt,mage35,headcirc,mage,mppwt,fage,fedyrs,fnocig,fheight,lowbwt,mnocig))%>%
+        ggpairs()
+```
 
 
 
