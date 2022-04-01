@@ -1,0 +1,100 @@
+---
+title: "project_three_project_analysis"
+author: "Eric Anku"
+date: "4/1/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r import-libraries}
+# Import libraries for data analysis
+
+pacman::p_load(
+        tidyverse, #Data management and plots
+        rio, # Data import
+        here, #Project management
+        janitor, #Clean data names
+        skimr #Skim dataset
+)
+```
+
+```{r load-dataset}
+df <- import(here("data","birthweight_dataset.sav")) #Import dataset
+```
+
+
+
+```{r clean-data}
+df <- clean_names(df) #clean data variables
+```
+
+
+```{r glimpse-data, eval=FALSE}
+glimpse(df)  #Glimpse data frame
+```
+
+
+```{r data-transformation}
+df <- df%>%mutate(
+        smoker = factor(smoker)%>%
+                fct_recode("No smoker" = "0",
+                           "Smoker" = "1"),
+        lowbwt = factor(lowbwt)%>%
+                fct_recode("No" = "0",
+                           "Yes" = "1"),
+        mage35 = factor(mage35)%>%
+                fct_recode("No" = "0",
+                           "Yes" = "1")
+)
+```
+
+
+```{r skim-data, eval=FALSE}
+df_no_id <- df%>%select(-c(id))
+skim(df_no_id)
+```
+
+
+
+```{r subset-data-smoking-mothers}
+df_smoker <- df%>%
+        filter (smoker == "Smoker") ## Data frame for smoking mothers
+```
+
+
+
+```{r subset-data-non-smoking-mothers}
+df_non_smoker <- df%>%
+        filter(smoker == "No smoker")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
