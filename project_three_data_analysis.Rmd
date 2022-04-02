@@ -1,12 +1,14 @@
 ---
-title: "project_three_project_analysis"
+title: "Project 3 data analysis"
 author: "Eric Anku"
 date: "4/1/2022"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ```
 
 
@@ -18,23 +20,27 @@ pacman::p_load(
         rio, # Data import
         here, #Project management
         janitor, #Clean data names
-        skimr #Skim dataset
+        skimr, #Skim dataset
+        statsr #Statistical inference
 )
 ```
 
 ```{r load-dataset}
 df <- import(here("data","birthweight_dataset.sav")) #Import dataset
+cholesterol_dataset <- import(here("data","cholesterol_spss.sav"))
 ```
 
 
 
 ```{r clean-data}
-df <- clean_names(df) #clean data variables
+df <- clean_names(df) #clean data variables for birthweight dataset
+df2 <- clean_names(cholesterol_dataset) #clean data variables for cholesterol dataset
 ```
 
 
 ```{r glimpse-data, eval=FALSE}
 glimpse(df)  #Glimpse data frame
+glimpse(cholesterol_dataset)
 ```
 
 
@@ -53,11 +59,15 @@ df <- df%>%mutate(
 ```
 
 
-```{r skim-data, eval=FALSE}
-df_no_id <- df%>%select(-c(id))
-skim(df_no_id)
+```{r skim-data}
+df_birthweight_dataset <- df%>%select(-c(id))
+skim(df_birthweight_dataset)
 ```
 
+
+```{r}
+skim(cholesterol_dataset) #Skim cholesterol dataset
+```
 
 
 ```{r subset-data-smoking-mothers}
@@ -74,9 +84,157 @@ df_non_smoker <- df%>%
 
 
 
+```{r subset-mage35}
+df_mage_over <- df%>%
+        filter(mage35 == "Yes")
+
+df_mage_under <- df%>%
+        filter(mage35 == "No")
+```
+
+
+#### 1. What does homogeniety of variance mean and why is it an important assumption of an independent t-test
+
+
+Homogeniety of variance means that comparison groups have equal variance. This is an important assumption for an independent t-test because it ensures comparability between groups.
+
+
+#### 2. Is there homogeniety of variance between head circumference for babies of smoking mothers and head circumference of babies of non-smoking mothers?
 
 
 
+
+
+#### 3. Justify your choice.
+
+
+
+
+#### 4. Do smokers have lighter babies? Justify your answer
+
+
+
+```{r smoker}
+smoker <- inference(
+  df$birthweight,
+  df$smoker,
+  df,
+  type = "ht",
+  statistic = "mean",
+  method = "theoretical",
+  alternative = "twosided"
+)
+
+```
+
+
+Smokers have lighter babies compared to non-smokers. The mean birthweight of babies of smoking mothers (Mean = `r mean(df_smoker$birthweight)`) is significantly lower than the mean birthweight of non-smoking mothers Mean = `r mean(df_non_smoker$birthweight)`, t = `r smoker$t`, p = `r smoker$p_value`.
+
+
+
+
+#### 5. Do women over 35 have lighter babies? Justify your answer
+
+
+
+
+
+```{r}
+maternal <- inference(
+  df$birthweight,
+  df$mage35,
+  df,
+  type = "ht",
+  statistic = "mean",
+  method = "theoretical",
+  alternative = "twosided"
+)
+
+```
+
+
+
+
+There is no significant difference in the mean birthweight of babies of mothers over 35 years of age compared to mothers below 35 years of age. The mean birthweight of babies of mothers over 35 years (Mean = `r mean(df_mage_over$birthweight)`) is significantly lower than the mean birthweight of non-smoking mothers Mean = `r mean(df_mage_under$birthweight)`, t = `r maternal$t`, p = `r maternal$p_value`
+
+
+#### 6. Using the cholesterol dataset, was the certain margarine brand effective in lowering cholesterol concentration after 8 weeks of use? Justify your answer.
+
+
+
+
+```{r inference-type-margarine}
+margarine_type = inference(
+  df2$after8weeks,
+  df2$margarine,
+  df2,
+  type = "ht",
+  statistic = "mean",
+  method = "theoretical",
+  alternative = "twosided",
+)
+```
+
+
+
+
+No, margarine type made no difference in lowering cholesterol after 8 weeks of use.This is because there was no significant difference in the mean cholesterol value based on margarine type (t = `r margarine_type$t`, p = `r margarine_type$p_value`).
+
+
+#### 7. For the above case, what is the null and alternative hypothesis?
+
+
+Null hypothesis: There mean cholesterol value from using margarine A is equal to the mean cholesterol value from using margarine B.
+
+
+Alternative hypothesis: The mean cholesterol value from using margarine B is not equal to the mean cholesterol value from using margarine B.
+
+
+#### 8. Was the margaine diet more effective after 4 weeks of use or after 8 weeks of use?
+
+
+#### 8.1. State your hypotheses
+
+
+Null hypothesis: There is no mean difference in margarine diet at 4 weeks or 8 weeks of use in reducing cholesterol levels.
+
+Alternative hypothesis: There is a mean difference in cholesterol reduction between 4 weeks use of margarine diet compared to 8 weeks of use.
+
+
+#### 8.2. List the assumptions to be satisfied (List their names only)
+
+1. The dependent variable is continuous, and it is measured twice on the same sample of subjects.
+2. The difference between the scores of the variables are normally distributed.
+3. The difference between the scores of the variables do no present significant outliers.
+
+
+
+#### 8.3. Performed a paired sample t-test
+
+```{r paired-t-test}
+paired_t_test <- t.test(df2$after4weeks,df2$after8weeks, paired = TRUE, alternative = "two.sided")
+
+```
+```{r pair}
+t.test(df2$after4weeks,df2$after8weeks, paired = TRUE, alternative = "two.sided")
+```
+
+
+#### 8.4. Indicate your statistical decision
+
+The null hypothesis is rejected because there is statistical significant difference between interventions after 4 weeks and after 8 weeks of margarine use.
+
+
+#### 8.5. Calculate effect size (Cohen's d) and interpret them
+
+
+
+#### 8.6. Report the results (including descriptive statistics)
+
+
+
+This study uses a repeated measured design. The null hypothesis state that the difference in mean is equal to 0. Degrees of freedom for this study can be determined by using the formula: df = n -1. For these data, degrees of freedom equal df = `r paired_t_test$parameter`. The standard deviations are calculated as `r paired_t_test$stderr`. The calculated t value is `r round(paired_t_test$statistic,2)`. Therefore, I reject the null hypothesis. I conclude that there is a difference in means between the two intervention, t = `r round(paired_t_test$statistic,2)`, p = `r round(paired_t_test$p.value,5)`, Cohen's d = ......, 95% CI [`r paired_t_test$conf.int`]
+.
 
 
 
