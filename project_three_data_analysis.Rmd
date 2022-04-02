@@ -3,8 +3,8 @@ title: "Project 3 data analysis"
 author: "Eric Anku"
 date: "4/1/2022"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -21,7 +21,9 @@ pacman::p_load(
         here, #Project management
         janitor, #Clean data names
         skimr, #Skim dataset
-        statsr #Statistical inference
+        statsr, #Statistical inference
+        car, #Levene test
+        rstatix #Cohen D
 )
 ```
 
@@ -34,7 +36,7 @@ cholesterol_dataset <- import(here("data","cholesterol_spss.sav"))
 
 ```{r clean-data}
 df <- clean_names(df) #clean data variables for birthweight dataset
-df2 <- clean_names(cholesterol_dataset) #clean data variables for cholesterol dataset
+cholesterol_dataset <- clean_names(cholesterol_dataset) #clean data variables for cholesterol dataset
 ```
 
 
@@ -65,7 +67,7 @@ skim(df_birthweight_dataset)
 ```
 
 
-```{r}
+```{r eval}
 skim(cholesterol_dataset) #Skim cholesterol dataset
 ```
 
@@ -99,15 +101,17 @@ df_mage_under <- df%>%
 Homogeniety of variance means that comparison groups have equal variance. This is an important assumption for an independent t-test because it ensures comparability between groups.
 
 
-#### 2. Is there homogeniety of variance between head circumference for babies of smoking mothers and head circumference of babies of non-smoking mothers?
+#### 2. Is there homogeniety of variance between head circumference of babies of smoking mothers and head circumference of babies of non-smoking mothers?
 
-
-
+```{r}
+leveneTest(df$headcirc ~ df$smoker, df)
+```
 
 
 #### 3. Justify your choice.
 
 
+There is homogeniety of variance between head circumference of babies of smoking mothers and head circumference of babies of non-smoking mothers because p = 0.4328.
 
 
 #### 4. Do smokers have lighter babies? Justify your answer
@@ -165,9 +169,9 @@ There is no significant difference in the mean birthweight of babies of mothers 
 
 ```{r inference-type-margarine}
 margarine_type = inference(
-  df2$after8weeks,
-  df2$margarine,
-  df2,
+  cholesterol_dataset$after8weeks,
+  cholesterol_dataset$margarine,
+  cholesterol_dataset,
   type = "ht",
   statistic = "mean",
   method = "theoretical",
@@ -212,11 +216,11 @@ Alternative hypothesis: There is a mean difference in cholesterol reduction betw
 #### 8.3. Performed a paired sample t-test
 
 ```{r paired-t-test}
-paired_t_test <- t.test(df2$after4weeks,df2$after8weeks, paired = TRUE, alternative = "two.sided")
+paired_t_test <- t.test(cholesterol_dataset$after4weeks,cholesterol_dataset$after8weeks, paired = TRUE, alternative = "two.sided")
 
 ```
 ```{r pair}
-t.test(df2$after4weeks,df2$after8weeks, paired = TRUE, alternative = "two.sided")
+t.test(cholesterol_dataset$after4weeks,cholesterol_dataset$after8weeks, paired = TRUE, alternative = "two.sided")
 ```
 
 
@@ -234,16 +238,6 @@ The null hypothesis is rejected because there is statistical significant differe
 
 
 This study uses a repeated measured design. The null hypothesis state that the difference in mean is equal to 0. Degrees of freedom for this study can be determined by using the formula: df = n -1. For these data, degrees of freedom equal df = `r paired_t_test$parameter`. The standard deviations are calculated as `r paired_t_test$stderr`. The calculated t value is `r round(paired_t_test$statistic,2)`. Therefore, I reject the null hypothesis. I conclude that there is a difference in means between the two intervention, t = `r round(paired_t_test$statistic,2)`, p = `r round(paired_t_test$p.value,5)`, Cohen's d = ......, 95% CI [`r paired_t_test$conf.int`]
-.
-
-
-
-
-
-
-
-
-
 
 
 
